@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from .bot.discord_client import bot
-from .mcp.server import get_mcp_server
+from .mcp.discord_server import get_mcp_server
 from .models.settings import settings
 from .auth.middleware import rate_limit_middleware, auth_manager
 from .utils.logging import setup_logging

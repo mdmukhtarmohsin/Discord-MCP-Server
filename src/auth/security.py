@@ -2,15 +2,15 @@
 
 import secrets
 import hashlib
-from datetime import datetime, timedelta
+import jwt
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any, List
-from jose import JWTError, jwt
 from passlib.context import CryptContext
 from passlib.hash import bcrypt
 import structlog
 
-from ..models.auth import PermissionLevel, TokenData, APIKey
-from ..models.settings import settings
+from models.auth import PermissionLevel, TokenData, APIKey
+from models.settings import settings
 
 logger = structlog.get_logger(__name__)
 
@@ -72,7 +72,7 @@ def verify_token(token: str) -> Optional[TokenData]:
             guild_ids=guild_ids,
             channel_ids=channel_ids
         )
-    except JWTError as e:
+    except jwt.JWTError as e:
         logger.warning("Invalid token", error=str(e))
         return None
     except Exception as e:

@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # Discord Bot Configuration
-    discord_bot_token: str
-    discord_guild_id: str
+    discord_bot_token: str = Field(default="your_bot_token_here")
+    discord_guild_id: str = Field(default="your_guild_id_here")
     
     # MCP Server Configuration
     mcp_server_name: str = "discord-mcp-server"
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     mcp_server_port: int = 8000
     
     # Authentication
-    secret_key: str
+    secret_key: str = Field(default="dev_secret_key_change_in_production")
     api_key_expire_hours: int = 24
     algorithm: str = "HS256"
     

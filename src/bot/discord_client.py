@@ -1,11 +1,11 @@
 """Discord bot client implementation."""
 
 import asyncio
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 import discord
 from discord.ext import commands
 import structlog
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from ..models.discord import (
     DiscordMessage, DiscordChannel, DiscordUser, DiscordGuild,
@@ -32,18 +32,25 @@ class DiscordBot(commands.Bot):
             help_command=None
         )
         
-        self.is_ready = False
+        self.bot_ready = False
         self.startup_time = None
+    
+    @property
+    def is_ready(self) -> bool:
+        """Check if bot is ready."""
+        return self.bot_ready and super().is_ready
     
     async def on_ready(self):
         """Event fired when bot is ready."""
-        self.is_ready = True
+        self.bot_ready = True
         self.startup_time = datetime.utcnow()
+        guild_count = len(self.guilds)
+        user_count = sum(guild.member_count for guild in self.guilds if guild.member_count)
         logger.info(
             "Discord bot ready",
             bot_user=str(self.user),
-            guild_count=len(self.guilds),
-            user_count=sum(guild.member_count for guild in self.guilds)
+            guild_count=guild_count,
+            user_count=user_count
         )
     
     async def on_message(self, message: discord.Message):
@@ -62,7 +69,7 @@ class DiscordBot(commands.Bot):
         
         await self.process_commands(message)
     
-    def _convert_discord_user(self, user: discord.User) -> DiscordUser:
+    def _convert_discord_user(self, user: Union[discord.User, discord.Member]) -> DiscordUser:
         """Convert Discord user to our model."""
         return DiscordUser(
             id=str(user.id),
@@ -140,6 +147,10 @@ class DiscordBot(commands.Bot):
             channel = self.get_channel(int(channel_id))
             if not channel:
                 raise ValueError(f"Channel {channel_id} not found")
+            
+            # Check if channel supports sending messages
+            if not hasattr(channel, 'send'):
+                raise ValueError(f"Channel {channel_id} does not support sending messages")
             
             embed_obj = None
             if embed:

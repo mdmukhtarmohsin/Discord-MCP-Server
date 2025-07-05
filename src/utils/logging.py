@@ -6,7 +6,19 @@ from typing import Any, Dict
 import structlog
 from structlog.stdlib import LoggerFactory
 
-from ..models.settings import settings
+try:
+    # Try relative import first
+    from ..models.settings import settings
+except ImportError:
+    # Fall back to absolute import for standalone testing
+    try:
+        from models.settings import settings
+    except ImportError:
+        # Create a mock settings object for testing
+        class MockSettings:
+            log_level = "INFO"
+            log_format = "console"
+        settings = MockSettings()
 
 
 def setup_logging():

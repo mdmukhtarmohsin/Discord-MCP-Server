@@ -48,6 +48,7 @@ class DiscordChannel(BaseModel):
     nsfw: bool = Field(False, description="Whether the channel is NSFW")
     parent_id: Optional[str] = Field(None, description="Parent category ID")
     permissions: Dict[str, Any] = Field(default_factory=dict, description="Channel permissions")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Channel creation timestamp")
 
 
 class DiscordMessage(BaseModel):
